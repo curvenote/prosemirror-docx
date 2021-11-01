@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "esnext",
     "esModuleInterop": true,
     "target": "es6",
     "noImplicitAny": true,
@@ -9,15 +9,11 @@
     "lib": ["es2019"],
     "sourceMap": true,
     "outDir": "dist",
-    "baseUrl": "src",
-    "paths": {
-      "*": ["node_modules/*"]
-    },
-    "typeRoots": ["./node_modules/@types", "./types"],
+    "baseUrl": ".",
     "resolveJsonModule": true,
     "declaration": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "test/**/*"],
-  "exclude": []
+  "include": ["src"],
+  "exclude": ["**/__tests__", "test"]
 }
