@@ -46,7 +46,8 @@ export type MarkSerializer<S extends Schema = any> = Record<
 >;
 
 export type Options = {
-  getImageBuffer: (src: string) => Buffer;
+  getImageBuffer?: (src: string) => Buffer;
+  footer?: string;
 };
 
 export type IMathOpts = {
@@ -235,11 +236,18 @@ export class DocxSerializerState<S extends Schema = any> {
     });
   }
 
+  defaultGetImageBuffer(src: string) {
+    return Buffer.from(src);
+  }
   // not sure what this actually is, seems to be close for 8.5x11
   maxImageWidth = MAX_IMAGE_WIDTH;
 
   image(src: string, widthPercent = 70, align: AlignOptions = 'center') {
-    const buffer = this.options.getImageBuffer(src);
+    let getImageBuffer = this.defaultGetImageBuffer;
+    if(typeof this?.options?.getImageBuffer === 'function') {
+      getImageBuffer = this.options.getImageBuffer;
+    }
+    const buffer = getImageBuffer(src);
     const dimensions = sizeOf(buffer);
     const aspect = dimensions.height / dimensions.width;
     const width = this.maxImageWidth * (widthPercent / 100);
@@ -363,7 +371,6 @@ export class DocxSerializer<S extends Schema = any> {
   serialize(content: ProsemirrorNode<S>, options: Options) {
     const state = new DocxSerializerState<S>(this.nodes, this.marks, options);
     state.renderContent(content);
-    const doc = createDocFromState(state);
-    return doc;
+    return createDocFromState(state);
   }
 }
