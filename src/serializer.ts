@@ -80,6 +80,8 @@ export class DocxSerializerState<S extends Schema = any> {
 
   children: (Paragraph | Table)[];
 
+  references: Paragraph[];
+
   numbering: INumbering[];
 
   footnotes: IFootnotes = {};
@@ -100,6 +102,7 @@ export class DocxSerializerState<S extends Schema = any> {
     this.marks = marks;
     this.options = options ?? {};
     this.children = [];
+    this.references = [];
     this.numbering = [];
   }
 
@@ -108,6 +111,32 @@ export class DocxSerializerState<S extends Schema = any> {
       if (opts) this.addParagraphOptions(opts);
       this.render(node, parent, i);
     });
+  }
+
+  renderReference(parent: ProsemirrorNode<S>) {
+    parent.forEach((node) => {
+      this.renderReferenceInline(node);
+      this.closeReferenceBlock();
+    });
+  }
+
+  renderReferenceInline(parent: ProsemirrorNode<S>) {
+    parent.forEach((node: ProsemirrorNode<S>) => {
+      if (node.isText) {
+        this.text(node.text);
+      } else {
+        this.renderReferenceInline(node);
+        this.closeReferenceBlock();
+      }
+    });
+  }
+
+  closeReferenceBlock() {
+    const paragraph = new Paragraph({
+      children: this.current,
+    });
+    this.current = [];
+    this.references.push(paragraph);
   }
 
   render(node: ProsemirrorNode<S>, parent: ProsemirrorNode<S>, index: number) {
