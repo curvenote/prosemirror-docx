@@ -258,7 +258,7 @@ export class DocxSerializerState {
         },
       }),
     );
-    let alignment: AlignmentType;
+    let alignment: string;
     switch (align) {
       case 'right':
         alignment = AlignmentType.RIGHT;
@@ -270,7 +270,8 @@ export class DocxSerializerState {
         alignment = AlignmentType.CENTER;
     }
     this.addParagraphOptions({
-      alignment,
+      // TODO: fix
+      alignment: alignment as any,
     });
   }
 
