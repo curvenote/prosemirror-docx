@@ -21,6 +21,7 @@ import {
   InternalHyperlink,
   SimpleField,
   FootnoteReferenceRun,
+  IImageOptions,
 } from 'docx';
 import sizeOf from 'buffer-image-size';
 import { createNumbering, NumberingStyles } from './numbering';
@@ -244,15 +245,22 @@ export class DocxSerializerState {
   // not sure what this actually is, seems to be close for 8.5x11
   maxImageWidth = MAX_IMAGE_WIDTH;
 
-  image(src: string, widthPercent = 70, align: AlignOptions = 'center') {
+  image(
+    src: string,
+    widthPercent = 70,
+    align: AlignOptions = 'center',
+    imageRunOpts?: IImageOptions,
+  ) {
     const buffer = this.options.getImageBuffer(src);
     const dimensions = sizeOf(buffer);
     const aspect = dimensions.height / dimensions.width;
     const width = this.maxImageWidth * (widthPercent / 100);
     this.current.push(
       new ImageRun({
+        ...imageRunOpts,
         data: buffer,
         transformation: {
+          ...(imageRunOpts?.transformation || {}),
           width,
           height: width * aspect,
         },
