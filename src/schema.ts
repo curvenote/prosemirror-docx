@@ -74,6 +74,12 @@ export const defaultMarks: MarkSerializer = {
   strong() {
     return { bold: true };
   },
+  italic() {
+    return { italics: true };
+  },
+  bold() {
+    return { bold: true };
+  },
   link() {
     // Note, this is handled specifically in the serializer
     // Word treats links more like a Node rather than a mark
