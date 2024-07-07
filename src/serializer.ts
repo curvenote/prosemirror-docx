@@ -21,6 +21,9 @@ import {
   InternalHyperlink,
   SimpleField,
   FootnoteReferenceRun,
+  IImageOptions,
+  ITableOptions,
+  ITableRowOptions,
 } from 'docx';
 import sizeOf from 'buffer-image-size';
 import { createNumbering, NumberingStyles } from './numbering';
@@ -244,21 +247,28 @@ export class DocxSerializerState {
   // not sure what this actually is, seems to be close for 8.5x11
   maxImageWidth = MAX_IMAGE_WIDTH;
 
-  image(src: string, widthPercent = 70, align: AlignOptions = 'center') {
+  image(
+    src: string,
+    widthPercent = 70,
+    align: AlignOptions = 'center',
+    imageRunOpts?: IImageOptions,
+  ) {
     const buffer = this.options.getImageBuffer(src);
     const dimensions = sizeOf(buffer);
     const aspect = dimensions.height / dimensions.width;
     const width = this.maxImageWidth * (widthPercent / 100);
     this.current.push(
       new ImageRun({
+        ...imageRunOpts,
         data: buffer,
         transformation: {
+          ...(imageRunOpts?.transformation || {}),
           width,
           height: width * aspect,
         },
       }),
     );
-    let alignment: AlignmentType;
+    let alignment: string;
     switch (align) {
       case 'right':
         alignment = AlignmentType.RIGHT;
@@ -270,25 +280,34 @@ export class DocxSerializerState {
         alignment = AlignmentType.CENTER;
     }
     this.addParagraphOptions({
-      alignment,
+      // TODO: fix
+      alignment: alignment as any,
     });
   }
 
-  table(node: Node) {
+  table(
+    node: Node,
+    opts: {
+      getCellOptions?: (cell: Node) => ITableCellOptions;
+      getRowOptions?: (row: Node) => Omit<ITableRowOptions, 'children'>;
+      tableOptions?: Omit<ITableOptions, 'rows'>;
+    } = {},
+  ) {
+    const { getCellOptions, getRowOptions, tableOptions } = opts;
     const actualChildren = this.children;
     const rows: TableRow[] = [];
-    node.content.forEach(({ content: rowContent }) => {
+    node.content.forEach((row) => {
       const cells: TableCell[] = [];
       // Check if all cells are headers in this row
       let tableHeader = true;
-      rowContent.forEach((cell) => {
+      row.content.forEach((cell) => {
         if (cell.type.name !== 'table_header') {
           tableHeader = false;
         }
       });
       // This scales images inside of tables
-      this.maxImageWidth = MAX_IMAGE_WIDTH / rowContent.childCount;
-      rowContent.forEach((cell) => {
+      this.maxImageWidth = MAX_IMAGE_WIDTH / row.content.childCount;
+      row.content.forEach((cell) => {
         this.children = [];
         this.renderContent(cell);
         const tableCellOpts: Mutable<ITableCellOptions> = { children: this.children };
@@ -296,12 +315,17 @@ export class DocxSerializerState {
         const rowspan = cell.attrs.rowspan ?? 1;
         if (colspan > 1) tableCellOpts.columnSpan = colspan;
         if (rowspan > 1) tableCellOpts.rowSpan = rowspan;
-        cells.push(new TableCell(tableCellOpts));
+        cells.push(
+          new TableCell({
+            ...tableCellOpts,
+            ...(getCellOptions?.(cell) || {}),
+          }),
+        );
       });
-      rows.push(new TableRow({ children: cells, tableHeader }));
+      rows.push(new TableRow({ ...(getRowOptions?.(row) || {}), children: cells, tableHeader }));
     });
     this.maxImageWidth = MAX_IMAGE_WIDTH;
-    const table = new Table({ rows });
+    const table = new Table({ ...tableOptions, rows });
     actualChildren.push(table);
     // If there are multiple tables, this seperates them
     actualChildren.push(new Paragraph(''));
