@@ -17,6 +17,9 @@
     "writing",
     "export"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/curvenote/prosemirror-docx.git"
