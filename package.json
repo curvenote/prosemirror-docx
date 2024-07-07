@@ -38,11 +38,13 @@
     "test:clear": "jest --clearCache",
     "lint": "eslint \"src/**/*.ts\" -c .eslintrc.json",
     "lint:format": "prettier --check \"src/**/*.ts\"",
-    "lint:format:fix": "prettier --write \"src/**/*.ts\""
+    "lint:format:fix": "prettier --write \"src/**/*.ts\"",
+    "release": "yarn build && yarn changeset publish"
   },
   "dependencies": {
+    "@changesets/cli": "^2.27.7",
     "buffer-image-size": "^0.6.4",
-    "docx": "^7.3.0",
+    "docx": "^8.5.0",
     "prosemirror-model": "^1.18.1"
   },
   "devDependencies": {
