@@ -45,8 +45,8 @@
     "release": "yarn build && yarn changeset publish"
   },
   "dependencies": {
-    "buffer-image-size": "^0.6.4",
     "docx": "^8.5.0",
+    "image-dimensions": "^2.3.0",
     "prosemirror-model": "^1.18.1"
   },
   "devDependencies": {
@@ -82,5 +82,6 @@
     "rimraf": "^3.0.2",
     "ts-jest": "^28.0.5",
     "typescript": "^4.7.4"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

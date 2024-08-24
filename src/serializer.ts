@@ -25,7 +25,7 @@ import {
   ITableOptions,
   ITableRowOptions,
 } from 'docx';
-import sizeOf from 'buffer-image-size';
+import { imageDimensionsFromData } from 'image-dimensions';
 import { createNumbering, NumberingStyles } from './numbering';
 import { createDocFromState, createShortId } from './utils';
 import { IFootnotes, INumbering, Mutable } from './types';
@@ -254,7 +254,9 @@ export class DocxSerializerState {
     imageRunOpts?: IImageOptions,
   ) {
     const buffer = this.options.getImageBuffer(src);
-    const dimensions = sizeOf(buffer);
+    const dimensions = imageDimensionsFromData(buffer);
+    /* If the image is not a valid image, don't add it */
+    if (!dimensions) return;
     const aspect = dimensions.height / dimensions.width;
     const width = this.maxImageWidth * (widthPercent / 100);
     this.current.push(
@@ -280,7 +282,6 @@ export class DocxSerializerState {
         alignment = AlignmentType.CENTER;
     }
     this.addParagraphOptions({
-      // TODO: fix
       alignment: alignment as any,
     });
   }
