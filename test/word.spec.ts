@@ -29,7 +29,7 @@ const imageBase64Data = `iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAACzVBMVEU
 
 describe('HTML', () => {
   it('serializes a paragraph', async () => {
-    const w = defaultDocxSerializer.serialize(
+    const w = await defaultDocxSerializer.serialize(
       tdoc(
         h1('Welcome to ', code('prosemirror-docx'), strong('!!')),
         p('This is ', code('code'), br(), 'hello!'),
@@ -42,11 +42,13 @@ describe('HTML', () => {
         equation('Ax=b'),
         p('And an unnumbered equation:'),
         equationUnnumbered('\\sum^{9}_{i=0}i+2 = ??'),
-        img(),
+        img({ src: `data:text/plain;base64,${imageBase64Data}` }),
+        img({ src: 'https://avatars.githubusercontent.com/u/78044536' }),
       ),
       {
-        getImageBuffer(src: string) {
-          return Buffer.from(imageBase64Data, 'base64');
+        async getImageBuffer(src: string) {
+          const arrayBuffer = await fetch(src).then((res) => res.arrayBuffer());
+          return new Uint8Array(arrayBuffer);
         },
       },
     );

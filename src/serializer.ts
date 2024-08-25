@@ -35,7 +35,7 @@ export type AlignOptions = 'left' | 'center' | 'right';
 
 export type NodeSerializer = Record<
   string,
-  (state: DocxSerializerState, node: Node, parent: Node, index: number) => void
+  (state: DocxSerializerState, node: Node, parent: Node, index: number) => void | Promise<void>
 >;
 
 export type MarkSerializer = Record<
@@ -44,7 +44,7 @@ export type MarkSerializer = Record<
 >;
 
 export type Options = {
-  getImageBuffer: (src: string) => Uint8Array;
+  getImageBuffer: (src: string) => Uint8Array | Promise<Uint8Array>;
 };
 
 export type IMathOpts = {
@@ -101,18 +101,21 @@ export class DocxSerializerState {
     this.numbering = [];
   }
 
-  renderContent(parent: Node, opts?: IParagraphOptions) {
-    parent.forEach((node, _, i) => {
+  async renderContent(parent: Node, opts?: IParagraphOptions) {
+    const renderPromises = [];
+    for (let i = 0; i < parent.childCount; i += 1) {
+      const node = parent.child(i);
       if (opts) this.addParagraphOptions(opts);
-      this.render(node, parent, i);
-    });
+      renderPromises.push(this.render(node, parent, i));
+    }
+    await Promise.all(renderPromises);
   }
 
-  render(node: Node, parent: Node, index: number) {
+  async render(node: Node, parent: Node, index: number) {
     if (typeof parent === 'number') throw new Error('!');
     if (!this.nodes[node.type.name])
       throw new Error(`Token type \`${node.type.name}\` not supported by Word renderer`);
-    this.nodes[node.type.name](this, node, parent, index);
+    await Promise.resolve(this.nodes[node.type.name](this, node, parent, index));
   }
 
   renderMarks(node: Node, marks: Mark[]): IRunOptions {
@@ -176,7 +179,7 @@ export class DocxSerializerState {
     closeLink();
   }
 
-  renderList(node: Node, style: NumberingStyles) {
+  async renderList(node: Node, style: NumberingStyles) {
     if (!this.currentNumbering) {
       const nextId = createShortId();
       this.numbering.push(createNumbering(nextId, style));
@@ -185,7 +188,7 @@ export class DocxSerializerState {
       const { reference, level } = this.currentNumbering;
       this.currentNumbering = { reference, level: level + 1 };
     }
-    this.renderContent(node);
+    await this.renderContent(node);
     if (this.currentNumbering.level === 0) {
       delete this.currentNumbering;
     } else {
@@ -195,10 +198,10 @@ export class DocxSerializerState {
   }
 
   // This is a pass through to the paragraphs, etc. underneath they will close the block
-  renderListItem(node: Node) {
+  async renderListItem(node: Node) {
     if (!this.currentNumbering) throw new Error('Trying to create a list item without a list?');
     this.addParagraphOptions({ numbering: this.currentNumbering });
-    this.renderContent(node);
+    await this.renderContent(node);
   }
 
   addParagraphOptions(opts: IParagraphOptions) {
@@ -247,13 +250,13 @@ export class DocxSerializerState {
   // not sure what this actually is, seems to be close for 8.5x11
   maxImageWidth = MAX_IMAGE_WIDTH;
 
-  image(
+  async image(
     src: string,
     widthPercent = 70,
     align: AlignOptions = 'center',
     imageRunOpts?: IImageOptions,
   ) {
-    const buffer = this.options.getImageBuffer(src);
+    const buffer = await Promise.resolve(this.options.getImageBuffer(src));
     const dimensions = imageDimensionsFromData(buffer);
     /* If the image is not a valid image, don't add it */
     if (!dimensions) return;
@@ -286,7 +289,7 @@ export class DocxSerializerState {
     });
   }
 
-  table(
+  async table(
     node: Node,
     opts: {
       getCellOptions?: (cell: Node) => ITableCellOptions;
@@ -297,20 +300,28 @@ export class DocxSerializerState {
     const { getCellOptions, getRowOptions, tableOptions } = opts;
     const actualChildren = this.children;
     const rows: TableRow[] = [];
-    node.content.forEach((row) => {
+
+    for (let rowIndex = 0; rowIndex < node.content.childCount; rowIndex += 1) {
+      const row = node.content.child(rowIndex);
       const cells: TableCell[] = [];
       // Check if all cells are headers in this row
       let tableHeader = true;
-      row.content.forEach((cell) => {
+
+      // 检查行中的所有单元格是否都是表头
+      for (let cellIndex = 0; cellIndex < row.content.childCount; cellIndex += 1) {
+        const cell = row.content.child(cellIndex);
         if (cell.type.name !== 'table_header') {
           tableHeader = false;
         }
-      });
+      }
       // This scales images inside of tables
       this.maxImageWidth = MAX_IMAGE_WIDTH / row.content.childCount;
-      row.content.forEach((cell) => {
+
+      // 遍历单元格并确保顺序
+      for (let cellIndex = 0; cellIndex < row.content.childCount; cellIndex++) {
+        const cell = row.content.child(cellIndex);
         this.children = [];
-        this.renderContent(cell);
+        await this.renderContent(cell); // 确保顺序
         const tableCellOpts: Mutable<ITableCellOptions> = { children: this.children };
         const colspan = cell.attrs.colspan ?? 1;
         const rowspan = cell.attrs.rowspan ?? 1;
@@ -322,13 +333,15 @@ export class DocxSerializerState {
             ...(getCellOptions?.(cell) || {}),
           }),
         );
-      });
+      }
+
       rows.push(new TableRow({ ...(getRowOptions?.(row) || {}), children: cells, tableHeader }));
-    });
+    }
+
     this.maxImageWidth = MAX_IMAGE_WIDTH;
     const table = new Table({ ...tableOptions, rows });
     actualChildren.push(table);
-    // If there are multiple tables, this seperates them
+    // If there are multiple tables, this separates them
     actualChildren.push(new Paragraph(''));
     this.children = actualChildren;
   }
@@ -386,9 +399,9 @@ export class DocxSerializer {
     this.marks = marks;
   }
 
-  serialize(content: Node, options: Options) {
+  async serialize(content: Node, options: Options) {
     const state = new DocxSerializerState(this.nodes, this.marks, options);
-    state.renderContent(content);
+    await state.renderContent(content);
     const doc = createDocFromState(state);
     return doc;
   }
