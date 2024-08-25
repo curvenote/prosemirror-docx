@@ -44,7 +44,7 @@ export type MarkSerializer = Record<
 >;
 
 export type Options = {
-  getImageBuffer: (src: string) => Buffer;
+  getImageBuffer: (src: string) => Uint8Array;
 };
 
 export type IMathOpts = {
