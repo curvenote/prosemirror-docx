@@ -102,13 +102,12 @@ export class DocxSerializerState {
   }
 
   async renderContent(parent: Node, opts?: IParagraphOptions) {
-    const renderPromises = [];
     for (let i = 0; i < parent.childCount; i += 1) {
       const node = parent.child(i);
       if (opts) this.addParagraphOptions(opts);
-      renderPromises.push(this.render(node, parent, i));
+      // eslint-disable-next-line no-await-in-loop
+      await this.render(node, parent, i);
     }
-    await Promise.all(renderPromises);
   }
 
   async render(node: Node, parent: Node, index: number) {
@@ -307,7 +306,7 @@ export class DocxSerializerState {
       // Check if all cells are headers in this row
       let tableHeader = true;
 
-      // 检查行中的所有单元格是否都是表头
+      // Check if all cells in the row are headers
       for (let cellIndex = 0; cellIndex < row.content.childCount; cellIndex += 1) {
         const cell = row.content.child(cellIndex);
         if (cell.type.name !== 'table_header') {
@@ -317,11 +316,12 @@ export class DocxSerializerState {
       // This scales images inside of tables
       this.maxImageWidth = MAX_IMAGE_WIDTH / row.content.childCount;
 
-      // 遍历单元格并确保顺序
-      for (let cellIndex = 0; cellIndex < row.content.childCount; cellIndex++) {
+      // Iterate through cells and ensure order
+      for (let cellIndex = 0; cellIndex < row.content.childCount; cellIndex += 1) {
         const cell = row.content.child(cellIndex);
         this.children = [];
-        await this.renderContent(cell); // 确保顺序
+        // eslint-disable-next-line no-await-in-loop
+        await this.renderContent(cell); // Ensure order
         const tableCellOpts: Mutable<ITableCellOptions> = { children: this.children };
         const colspan = cell.attrs.colspan ?? 1;
         const rowspan = cell.attrs.rowspan ?? 1;

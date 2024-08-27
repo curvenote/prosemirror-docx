@@ -42,8 +42,8 @@ describe('HTML', () => {
         equation('Ax=b'),
         p('And an unnumbered equation:'),
         equationUnnumbered('\\sum^{9}_{i=0}i+2 = ??'),
-        img({ src: `data:text/plain;base64,${imageBase64Data}` }),
         img({ src: 'https://avatars.githubusercontent.com/u/78044536' }),
+        img({ src: `data:text/plain;base64,${imageBase64Data}` }),
       ),
       {
         async getImageBuffer(src: string) {
