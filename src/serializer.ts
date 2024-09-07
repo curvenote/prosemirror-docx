@@ -110,10 +110,14 @@ export class DocxSerializerState {
 
   render(node: Node, parent: Node, index: number) {
     if (typeof parent === 'number') throw new Error('!');
-    if (!this.nodes[node.type.name])
-      throw new Error(`Token type \`${node.type.name}\` not supported by Word renderer`);
-    this.nodes[node.type.name](this, node, parent, index);
+    if (!this.nodes[node.type.name]) {
+      // throw new Error(`Token type \`${node.type.name}\` not supported by Word renderer`);
+      this.current.push(new TextRun(`\n\nUnable to render item: ${node.type.name}\n\n`));
+    } else {
+      this.nodes[node.type.name](this, node, parent, index);
+    }
   }
+
 
   renderMarks(node: Node, marks: Mark[]): IRunOptions {
     return marks
