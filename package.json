@@ -46,7 +46,6 @@
   },
   "dependencies": {
     "buffer-image-size": "^0.6.4",
-    "docx": "^8.5.0",
     "prosemirror-model": "^1.18.1"
   },
   "devDependencies": {
@@ -58,6 +57,7 @@
     "@typescript-eslint/eslint-plugin": "^5.30.0",
     "@typescript-eslint/parser": "^5.30.0",
     "date-fns": "^2.28.0",
+    "docx": "^9.0.0",
     "eslint": "^8.18.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-base": "^15.0.0",
@@ -82,5 +82,8 @@
     "rimraf": "^3.0.2",
     "ts-jest": "^28.0.5",
     "typescript": "^4.7.4"
+  },
+  "peerDependencies": {
+    "docx": "^8.5.0 || ^9.0.0"
   }
 }
