@@ -1,9 +1,18 @@
-import { INumberingOptions } from 'docx';
-import { IPropertiesOptions } from 'docx/build/file/core-properties';
+import { INumberingOptions, Paragraph } from 'docx';
 
 export type Mutable<T> = {
   -readonly [k in keyof T]: T[k];
 };
 
-export type IFootnotes = Mutable<Required<IPropertiesOptions>['footnotes']>;
+export type IFootnotes = Mutable<
+  Readonly<
+    Record<
+      string,
+      {
+        readonly children: readonly Paragraph[];
+      }
+    >
+  >
+>;
+
 export type INumbering = INumberingOptions['config'][0];
