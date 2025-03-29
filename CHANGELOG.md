@@ -1,5 +1,11 @@
 # prosemirror-docx
 
+## 0.2.1
+
+### Patch Changes
+
+- fe429e5: Support docx by removing unexported dependency
+
 ## 0.2.0
 
 ### Minor Changes

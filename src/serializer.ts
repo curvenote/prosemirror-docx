@@ -263,6 +263,8 @@ export class DocxSerializerState {
       new ImageRun({
         ...imageRunOpts,
         data: buffer,
+        // Assume that the file extension is a valid docx image type.
+        type: src.replace(/.*\./, '').toLowerCase() as any,
         transformation: {
           ...(imageRunOpts?.transformation || {}),
           width,
