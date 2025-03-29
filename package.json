@@ -1,9 +1,11 @@
 {
   "name": "prosemirror-docx",
   "version": "0.2.1",
+  "type": "module",
   "description": "Export from a prosemirror document to Microsoft word",
   "author": "Rowan Cockett <rowan@curvenote.com>",
   "license": "MIT",
+  "packageManager": "yarn@1.22.22",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/types/index.d.ts",
@@ -45,7 +47,7 @@
     "release": "yarn build && yarn changeset publish"
   },
   "dependencies": {
-    "buffer-image-size": "^0.6.4",
+    "image-dimensions": "^2.3.0",
     "prosemirror-model": "^1.18.1"
   },
   "devDependencies": {
