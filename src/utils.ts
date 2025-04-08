@@ -30,10 +30,14 @@ export function createDocFromState(state: {
 
 export async function writeDocx(
   doc: Document,
-  write: ((buffer: Buffer) => void) | ((buffer: Buffer) => Promise<void>),
+  /**
+   * @deprecated use `.then()` or `await` instead
+   */
+  write?: ((buffer: Buffer) => void) | ((buffer: Buffer) => Promise<void>),
 ) {
   const buffer = await Packer.toBuffer(doc);
-  return write(buffer);
+  await write?.(buffer);
+  return buffer;
 }
 
 export function getLatexFromNode(node: ProsemirrorNode): string {
