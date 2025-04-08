@@ -1,5 +1,11 @@
 # prosemirror-docx
 
+## 0.4.1
+
+### Patch Changes
+
+- c91d548: Pass image run opts through to image serializer
+
 ## 0.4.0
 
 ### Minor Changes
