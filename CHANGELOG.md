@@ -1,5 +1,15 @@
 # prosemirror-docx
 
+## 0.3.0
+
+### Minor Changes
+
+- 70d6ed2: Calling writeDocx returns the buffer, which allows for await or .then usage
+
+### Patch Changes
+
+- 1f7167b: Replace `buffer-image-size` with `image-dimensions` in prosemirror-docx.
+
 ## 0.2.1
 
 ### Patch Changes
