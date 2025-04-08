@@ -270,6 +270,7 @@ export class DocxSerializerState {
     this.current.push(
       new ImageRun({
         data: buffer,
+        ...imageRunOpts,
         type: it,
         transformation: {
           ...(imageRunOpts?.transformation || {}),
