@@ -1,5 +1,11 @@
 # prosemirror-docx
 
+## 0.4.0
+
+### Minor Changes
+
+- f007926: Allow users to pass an `imageType` to the `image` serializer, fixes image serializer for dataUrl images
+
 ## 0.3.0
 
 ### Minor Changes
