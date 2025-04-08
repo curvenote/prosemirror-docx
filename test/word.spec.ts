@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { describe, it, expect } from 'vitest';
 import { defaultDocxSerializer, writeDocx } from '../src';
 import { tnodes, tdoc } from './build';
 
