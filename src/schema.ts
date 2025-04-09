@@ -38,19 +38,19 @@ export const defaultNodes: NodeSerializer = {
   hard_break(state) {
     state.addRunOptions({ break: 1 });
   },
-  ordered_list(state, node) {
-    state.renderList(node, 'numbered');
+  async ordered_list(state, node) {
+    await state.renderList(node, 'numbered');
   },
-  bullet_list(state, node) {
-    state.renderList(node, 'bullets');
+  async bullet_list(state, node) {
+    await state.renderList(node, 'bullets');
   },
-  list_item(state, node) {
-    state.renderListItem(node);
+  async list_item(state, node) {
+    await state.renderListItem(node);
   },
   // Presentational
-  image(state, node) {
+  async image(state, node) {
     const { src } = node.attrs;
-    state.image(src);
+    await state.image(src);
     state.closeBlock(node);
   },
   // Technical
@@ -62,8 +62,8 @@ export const defaultNodes: NodeSerializer = {
     state.math(getLatexFromNode(node), { inline: false, numbered, id });
     state.closeBlock(node);
   },
-  table(state, node) {
-    state.table(node);
+  async table(state, node) {
+    await state.table(node);
   },
 };
 
