@@ -52,6 +52,7 @@ export type IMathOpts = {
   id?: string | null;
   numbered?: boolean;
 };
+export type ImageType = 'jpg' | 'png' | 'gif' | 'bmp';
 
 const MAX_IMAGE_WIDTH = 600;
 
@@ -254,6 +255,7 @@ export class DocxSerializerState {
     widthPercent = 70,
     align: AlignOptions = 'center',
     imageRunOpts?: IImageOptions,
+    imageType?: ImageType,
   ) {
     const buffer = await Promise.resolve(this.options.getImageBuffer(src));
     const dimensions = imageDimensionsFromData(buffer);
@@ -261,10 +263,17 @@ export class DocxSerializerState {
     if (!dimensions) return;
     const aspect = dimensions.height / dimensions.width;
     const width = this.maxImageWidth * (widthPercent / 100);
+    let it;
+    try {
+      it = imageType || (src.replace(/.*\./, '').toLowerCase() as any);
+    } catch (e) {
+      it = 'png';
+    }
     this.current.push(
       new ImageRun({
-        ...imageRunOpts,
         data: buffer,
+        ...imageRunOpts,
+        type: it,
         transformation: {
           ...(imageRunOpts?.transformation || {}),
           width,

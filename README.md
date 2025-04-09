@@ -34,7 +34,7 @@ const opts = {
 // Create a doc in memory, and then write it to disk
 const wordDocument = await defaultDocxSerializer.serialize(state.doc, opts);
 
-await writeDocx(wordDocument, (buffer) => {
+await writeDocx(wordDocument).then((buffer) => {
   writeFileSync('HelloWorld.docx', buffer);
 });
 ```
