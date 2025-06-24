@@ -26,7 +26,6 @@ export function buildDoc(state: SerializationState, opts?: IPropertiesOptions): 
     throw new Error('At least one section must be provided to create a document.');
   }
 
-
   const doc = new Document({
     footnotes: state.footnotes,
     numbering: {
