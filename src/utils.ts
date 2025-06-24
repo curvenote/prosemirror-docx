@@ -1,31 +1,70 @@
-import { Document, INumberingOptions, ISectionOptions, Packer, SectionType } from 'docx';
+import {
+  Document,
+  INumberingOptions,
+  IPropertiesOptions,
+  ISectionOptions,
+  Packer,
+  SectionType,
+} from 'docx';
 import { Node as ProsemirrorNode } from 'prosemirror-model';
-import { IFootnotes } from './types';
+import { IFootnotes, SerializationState } from './types';
 
 export function createShortId() {
   return Math.random().toString(36).substr(2, 9);
 }
 
-export function createDocFromState(state: {
-  numbering: INumberingOptions['config'];
-  children: ISectionOptions['children'];
-  footnotes?: IFootnotes;
-}) {
+export function buildDoc(state: SerializationState, opts?: IPropertiesOptions): Document {
+  let sections = state?.sections?.map((section) => ({
+    properties: section.config.properties || {
+      type: SectionType.CONTINUOUS,
+    },
+    headers: section.config.headers,
+    footers: section.config.footers,
+    children: section.children,
+  }));
+  if (!sections) {
+    sections = [
+      {
+        headers: undefined,
+        footers: undefined,
+        properties: {
+          type: SectionType.CONTINUOUS,
+        },
+        children: state?.children || [],
+      },
+    ];
+  }
+
   const doc = new Document({
     footnotes: state.footnotes,
     numbering: {
       config: state.numbering,
     },
+    sections,
+    ...(opts || {}),
+  });
+  return doc;
+}
+
+/**
+ *  @deprecated - use `buildDoc` instead
+ *  Creates a docx document from the given state.
+ * */
+export function createDocFromState(state: {
+  numbering: INumberingOptions['config'];
+  children: ISectionOptions['children'];
+  footnotes?: IFootnotes;
+}) {
+  return buildDoc({
+    numbering: state.numbering,
     sections: [
       {
-        properties: {
-          type: SectionType.CONTINUOUS,
-        },
+        config: {},
         children: state.children,
       },
     ],
+    footnotes: state.footnotes,
   });
-  return doc;
 }
 
 export async function writeDocx(
