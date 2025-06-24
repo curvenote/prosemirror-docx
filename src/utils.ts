@@ -14,7 +14,7 @@ export function createShortId() {
 }
 
 export function buildDoc(state: SerializationState, opts?: IPropertiesOptions): Document {
-  const sections = state.sections.map((section) => ({
+  let sections = state?.sections?.map((section) => ({
     properties: section.config.properties || {
       type: SectionType.CONTINUOUS,
     },
@@ -22,8 +22,17 @@ export function buildDoc(state: SerializationState, opts?: IPropertiesOptions): 
     footers: section.config.footers,
     children: section.children,
   }));
-  if (!sections.length) {
-    throw new Error('At least one section must be provided to create a document.');
+  if (!sections) {
+    sections = [
+      {
+        headers: undefined,
+        footers: undefined,
+        properties: {
+          type: SectionType.CONTINUOUS,
+        },
+        children: state?.children || [],
+      },
+    ];
   }
 
   const doc = new Document({

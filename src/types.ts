@@ -25,9 +25,10 @@ export interface SectionConfig {
 
 export interface SerializationState {
   numbering: INumberingOptions['config'];
-  sections: Array<{
+  sections?: Array<{
     config: SectionConfig;
     children: ISectionOptions['children'];
   }>;
+  children?: ISectionOptions['children'];
   footnotes?: IFootnotes;
 }
