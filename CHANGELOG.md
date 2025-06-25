@@ -1,5 +1,11 @@
 # prosemirror-docx
 
+## 0.5.0
+
+### Minor Changes
+
+- 546a4b7: Add support for docx.js sections, and allow consumers to modify final Document in `serialize`.
+
 ## 0.4.1
 
 ### Patch Changes
