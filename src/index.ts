@@ -1,4 +1,12 @@
-export type { MarkSerializer, NodeSerializer, NodeSerializerAsync } from './serializer';
+export type { SectionConfig, SerializationState } from './types';
+export type {
+  MarkSerializer,
+  NodeSerializer,
+  NodeSerializerAsync,
+  Options,
+  OptionsAsync,
+} from './serializer';
+
 export {
   DocxSerializerStateAsync,
   DocxSerializerAsync,
@@ -13,4 +21,4 @@ export {
   defaultNodes,
   defaultMarks,
 } from './schema';
-export { writeDocx, createDocFromState } from './utils';
+export { writeDocx, createDocFromState, buildDoc } from './utils';

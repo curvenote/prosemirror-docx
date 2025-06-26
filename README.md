@@ -12,7 +12,7 @@ Export a [prosemirror](https://prosemirror.net/) document to a Microsoft Word fi
 
 ## Overview
 
-`prosemirror-docx` has a similar structure to [prosemirror-markdown](https://github.com/prosemirror/prosemirror-markdown), with a `DocxSerializerState` object that you write to as you walk the document. It is a light wrapper around https://docx.js.org/, which actually does the export. Currently `prosemirror-docx` is write only (i.e. can export to, but can’t read from `*.docx`), and has most of the basic nodes covered (see below).
+`prosemirror-docx` has a similar structure to [prosemirror-markdown](https://github.com/prosemirror/prosemirror-markdown), with a `DocxSerializerState` object that you write to as you walk the document. It is a light wrapper around <https://docx.js.org/>, which actually does the export. Currently `prosemirror-docx` is write only (i.e. can export to, but can’t read from `*.docx`), and has most of the basic nodes covered (see below).
 
 [Curvenote](https://curvenote.com) uses this to export from [@curvenote/editor](https://github.com/curvenote/editor) to word docs, but this library currently only has dependence on `docx`, `prosemirror-model` and `image-dimensions` - and similar to `prosemirror-markdown`, the serialization schema can be edited externally (see `Extended usage` below).
 
@@ -40,6 +40,31 @@ await writeDocx(wordDocument).then((buffer) => {
   writeFileSync('HelloWorld.docx', buffer);
 });
 ```
+
+### Advanced usage
+
+If you need to access the underlying state and modify the final docx `Document` you can use the last argument of `serialize` to pass in a callback function that receives the `DocxSerializerState`.
+
+This function needs to return an `IPropertiesOptions` type, ie. the config that should be passed to a `Document`. Your options will be spread with the default options, so you can override any of the defaults.
+
+```ts
+const wordDocument = defaultDocxSerializer.serialize(state.doc, opts, (state) => {
+  return {
+    numbering: {
+      config: state.numbering,
+    },
+    fonts: [], // embed fonts,
+    styles: {
+      paragraphStyles,
+      default: {
+        heading1: paragraphStyles[1],
+      },
+    },
+  };
+});
+```
+
+See the [docx documentation](https://docx.js.org/#/usage/document) for more details on the options you can pass in.
 
 ## Extended usage
 
