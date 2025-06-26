@@ -10,7 +10,7 @@ import { Node as ProsemirrorNode } from 'prosemirror-model';
 import { IFootnotes, SerializationState } from './types';
 
 export function createShortId() {
-  return Math.random().toString(36).substr(2, 9);
+  return Math.random().toString(36).slice(2, 11);
 }
 
 export function buildDoc(state: SerializationState, opts?: IPropertiesOptions): Document {

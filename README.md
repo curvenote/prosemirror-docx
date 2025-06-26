@@ -1,6 +1,8 @@
 # `prosemirror-docx`
 
 [![prosemirror-docx on npm](https://img.shields.io/npm/v/prosemirror-docx.svg)](https://www.npmjs.com/package/prosemirror-docx)
+[![prosemirror-docx on GitHub](https://img.shields.io/github/stars/curvenote/prosemirror-docx.svg?style=social)](https://github.com/curvenote/prosemirror-docx)
+[
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/curvenote/prosemirror-docx/blob/master/LICENSE)
 ![CI](https://github.com/curvenote/prosemirror-docx/workflows/CI/badge.svg)
 
@@ -64,10 +66,9 @@ const wordDocument = defaultDocxSerializer.serialize(state.doc, opts, (state) =>
 
 See the [docx documentation](https://docx.js.org/#/usage/document) for more details on the options you can pass in.
 
-````ts
 ## Extended usage
 
-Instead of using the `defaultDocxSerializer` you can override or provide cusome serializers.
+Instead of using the `defaultDocxSerializer` you can override or provide custom serializers.
 
 ```ts
 import { DocxSerializer, defaultNodes, defaultMarks } from 'prosemirror-docx';
@@ -81,9 +82,46 @@ const nodeSerializer = {
 };
 
 export const myDocxSerializer = new DocxSerializer(nodeSerializer, defaultMarks);
-````
+```
 
 The `state` is the `DocxSerializerState` and has helper methods to interact with `docx`.
+
+If the exported content includes image links that require fetching the image data, you can use asynchronous APIs. Here's a demo example:
+
+```ts
+import { DocxSerializerAsync, defaultAsyncNodes, defaultMarks } from 'prosemirror-docx';
+import { EditorState } from 'prosemirror-state';
+import { writeFileSync } from 'fs';
+
+const state = EditorState.create({ schema: mySchema });
+
+export const docxSerializer = new DocxSerializerAsync(
+  {
+    ...defaultAsyncNodes,
+    async image(state, node) {
+      const { src } = node.attrs;
+      await state.image(src, 70, "center", undefined, "png");
+      state.closeBlock(node);
+    }
+  },
+  defaultMarks
+);
+
+// If there are images, we will need to preload the buffers
+const opts = {
+  async getImageBuffer(src: string) {
+    const arrayBuffer = await fetch(src).then((res) => res.arrayBuffer());
+    return new Uint8Array(arrayBuffer);
+  },
+};
+
+// Create a doc in memory, and then write it to disk
+const wordDocument = docxSerializer.serialize_async(state.doc, opts);
+
+await writeDocx(wordDocument).then((buffer) => {
+  writeFileSync('HelloWorld.docx', buffer);
+});
+```
 
 ## Supported Nodes
 

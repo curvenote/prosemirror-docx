@@ -1,5 +1,11 @@
 import { HeadingLevel, ShadingType } from 'docx';
-import { DocxSerializer, MarkSerializer, NodeSerializer } from './serializer';
+import {
+  DocxSerializer,
+  MarkSerializer,
+  NodeSerializer,
+  DocxSerializerAsync,
+  NodeSerializerAsync,
+} from './serializer';
 import { getLatexFromNode } from './utils';
 
 export const defaultNodes: NodeSerializer = {
@@ -67,6 +73,71 @@ export const defaultNodes: NodeSerializer = {
   },
 };
 
+export const defaultAsyncNodes: NodeSerializerAsync = {
+  text(state, node) {
+    state.text(node.text ?? '');
+  },
+  async paragraph(state, node) {
+    await state.renderInline(node);
+    state.closeBlock(node);
+  },
+  async heading(state, node) {
+    await state.renderInline(node);
+    const heading = [
+      HeadingLevel.HEADING_1,
+      HeadingLevel.HEADING_2,
+      HeadingLevel.HEADING_3,
+      HeadingLevel.HEADING_4,
+      HeadingLevel.HEADING_5,
+      HeadingLevel.HEADING_6,
+    ][node.attrs.level - 1];
+    state.closeBlock(node, { heading });
+  },
+  blockquote(state, node) {
+    state.renderContent(node, { style: 'IntenseQuote' });
+  },
+  code_block(state, node) {
+    // TODO: something for code
+    state.renderContent(node);
+    state.closeBlock(node);
+  },
+  horizontal_rule(state, node) {
+    // Kinda hacky, but this works to insert two paragraphs, the first with a break
+    state.closeBlock(node, { thematicBreak: true });
+    state.closeBlock(node);
+  },
+  hard_break(state) {
+    state.addRunOptions({ break: 1 });
+  },
+  async ordered_list(state, node) {
+    await state.renderList(node, 'numbered');
+  },
+  async bullet_list(state, node) {
+    await state.renderList(node, 'bullets');
+  },
+  async list_item(state, node) {
+    await state.renderListItem(node);
+  },
+  // Presentational
+  async image(state, node) {
+    const { src } = node.attrs;
+    await state.image(src);
+    state.closeBlock(node);
+  },
+  // Technical
+  math(state, node) {
+    state.math(getLatexFromNode(node), { inline: true });
+  },
+  equation(state, node) {
+    const { id, numbered } = node.attrs;
+    state.math(getLatexFromNode(node), { inline: false, numbered, id });
+    state.closeBlock(node);
+  },
+  async table(state, node) {
+    await state.table(node);
+  },
+};
+
 export const defaultMarks: MarkSerializer = {
   em() {
     return { italics: true };
@@ -126,3 +197,4 @@ export const defaultMarks: MarkSerializer = {
 };
 
 export const defaultDocxSerializer = new DocxSerializer(defaultNodes, defaultMarks);
+export const defaultDocxSerializerAsync = new DocxSerializerAsync(defaultAsyncNodes, defaultMarks);
