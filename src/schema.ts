@@ -6,12 +6,12 @@ export const defaultNodes: NodeSerializer = {
   text(state, node) {
     state.text(node.text ?? '');
   },
-  paragraph(state, node) {
-    state.renderInline(node);
+  async paragraph(state, node) {
+    await state.renderInline(node);
     state.closeBlock(node);
   },
-  heading(state, node) {
-    state.renderInline(node);
+  async heading(state, node) {
+    await state.renderInline(node);
     const heading = [
       HeadingLevel.HEADING_1,
       HeadingLevel.HEADING_2,

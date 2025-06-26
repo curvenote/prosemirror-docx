@@ -126,7 +126,7 @@ export class DocxSerializerState {
       .reduce((a, b) => ({ ...a, ...b }), {});
   }
 
-  renderInline(parent: Node) {
+  async renderInline(parent: Node) {
     // Pop the stack over to this object when we encounter a link, and closeLink restores it
     let currentLink: { link: string; stack: ParagraphChild[] } | undefined;
     const closeLink = () => {
@@ -160,7 +160,7 @@ export class DocxSerializerState {
       };
       this.current = [];
     };
-    const progress = (node: Node, offset: number, index: number) => {
+    const progress = async (node: Node, offset: number, index: number) => {
       const links = node.marks.filter((m) => m.type.name === 'link');
       const hasLink = links.length > 0;
       if (hasLink) {
@@ -171,10 +171,14 @@ export class DocxSerializerState {
       if (node.isText) {
         this.text(node.text, this.renderMarks(node, [...node.marks]));
       } else {
-        this.render(node, parent, index);
+        await this.render(node, parent, index);
       }
     };
-    parent.forEach(progress);
+    // Process nodes sequentially to maintain order
+    for (let i = 0; i < parent.childCount; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await progress(parent.child(i), 0, i);
+    }
     // Must call close at the end of everything, just in case
     closeLink();
   }
@@ -361,14 +365,14 @@ export class DocxSerializerState {
 
   $footnoteCounter = 0;
 
-  footnote(node: Node) {
+  async footnote(node: Node) {
     const { current, nextRunOpts } = this;
     // Delete everything and work with the footnote inline on the current
     this.current = [];
     delete this.nextRunOpts;
 
     this.$footnoteCounter += 1;
-    this.renderInline(node);
+    await this.renderInline(node);
     this.footnotes[this.$footnoteCounter] = {
       children: [new Paragraph({ children: this.current })],
     };
