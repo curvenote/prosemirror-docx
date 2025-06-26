@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import { describe, it, expect } from 'vitest';
-import { DocxSerializer, defaultNodes, defaultMarks, writeDocx } from '../src';
+import { DocxSerializerAsync, defaultAsyncNodes, defaultMarks, defaultDocxSerializer, writeDocx } from '../src';
 import { tnodes, tdoc } from './build';
-
+import { writeFileSync } from 'fs';
 const {
   blockquote,
   h1,
@@ -31,18 +31,21 @@ const imageBase64Data = `iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAACzVBMVEU
 /**
  * Adds image type to base64 encoded images
 */
-export const docxSerializer = new DocxSerializer({
-  ...defaultNodes,
-  async image(state, node) {
-    const { src } = node.attrs;
-    await state.image(src, 70, "center", undefined, "png");
-    state.closeBlock(node);
-  }
-}, defaultMarks);
+export const docxSerializer = new DocxSerializerAsync(
+  {
+    ...defaultAsyncNodes,
+    async image(state, node) {
+      const { src } = node.attrs;
+      await state.image(src, 70, "center", undefined, "png");
+      state.closeBlock(node);
+    }
+  },
+  defaultMarks
+);
 
-describe('HTML', () => {
-  it('serializes a paragraph', async () => {
-    const w = await docxSerializer.serialize(
+describe('DOCX Serialization', () => {
+  it('serializes document structure with async image handling', async () => {
+    const w = await docxSerializer.serialize_async(
       tdoc(
         h1('Welcome to ', code('prosemirror-docx'), strong('!!')),
         p('This is ', code('code'), br(), 'hello!'),
@@ -66,7 +69,36 @@ describe('HTML', () => {
       },
     );
     const buffer = await writeDocx(w)
-    fs.writeFileSync(`hello.docx`, buffer);
+    fs.writeFileSync(`hello-async.docx`, buffer);
     expect(1).toBe(1);
   });
+
+  it('serializes document structure with sync image handling', async () => {
+    const w = defaultDocxSerializer.serialize(
+      tdoc(
+        h1('Welcome to ', code('prosemirror-docx'), strong('!!')),
+        p('This is ', code('code'), br(), 'hello!'),
+        ul(li(p('bullet 1')), li(p('bullet 2')), ul(li(p('bullet 3.1')), li(p('bullet 3.2')))),
+        ul(li(p('bullet 1')), li(p('bullet 2')), ul(li(p('bullet 3.1')), li(p('bullet 3.2')))),
+        ol(li(p('bullet 1')), li(p('bullet 2')), ul(li(p('bullet 3.1')), li(p('bullet 3.2')))),
+        p(a('This is '), a(em('emphasized'))),
+        hr(),
+        p('Some math in a paragraph: ', math('Ax=b'), ' and then a standalone numbered equation:'),
+        equation('Ax=b'),
+        p('And an unnumbered equation:'),
+        equationUnnumbered('\\sum^{9}_{i=0}i+2 = ??'),
+        img(),
+      ),
+      {
+        getImageBuffer(src: string) {
+          return Buffer.from(imageBase64Data, 'base64');
+        },
+      },
+    );
+    await writeDocx(w).then((buffer) => {
+      fs.writeFileSync('hello.docx', buffer);
+    });
+    expect(2).toBe(2);
+  });
 });
+
