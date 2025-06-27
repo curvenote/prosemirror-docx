@@ -8,7 +8,7 @@ import {
   writeDocx,
 } from '../src';
 import { tnodes, tdoc } from './build';
-import { writeFileSync } from 'fs';
+
 const {
   blockquote,
   h1,
