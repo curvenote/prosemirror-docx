@@ -2,7 +2,7 @@ import { Schema } from 'prosemirror-model';
 import { builders } from 'prosemirror-test-builder';
 import { schemas } from '@curvenote/schema';
 
-const schema = new Schema(schemas.presets.full);
+const schema = new Schema(schemas.presets.full as any);
 
 export const tnodes = builders(schema, {
   p: { nodeType: 'paragraph' },
