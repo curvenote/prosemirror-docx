@@ -2,6 +2,7 @@
 
 [![prosemirror-docx on npm](https://img.shields.io/npm/v/prosemirror-docx.svg)](https://www.npmjs.com/package/prosemirror-docx)
 [![prosemirror-docx on GitHub](https://img.shields.io/github/stars/curvenote/prosemirror-docx.svg?style=social)](https://github.com/curvenote/prosemirror-docx)
+[
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/curvenote/prosemirror-docx/blob/master/LICENSE)
 ![CI](https://github.com/curvenote/prosemirror-docx/workflows/CI/badge.svg)
 
