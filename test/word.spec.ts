@@ -1,8 +1,15 @@
 import * as fs from 'fs';
 import { describe, it, expect } from 'vitest';
-import { DocxSerializerAsync, defaultAsyncNodes, defaultMarks, defaultDocxSerializer, writeDocx } from '../src';
-import { tnodes, tdoc } from './build';
 import { writeFileSync } from 'fs';
+import {
+  DocxSerializerAsync,
+  defaultAsyncNodes,
+  defaultMarks,
+  defaultDocxSerializer,
+  writeDocx,
+} from '../src';
+import { tnodes, tdoc } from './build';
+
 const {
   blockquote,
   h1,
@@ -30,17 +37,17 @@ const imageBase64Data = `iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAACzVBMVEU
 
 /**
  * Adds image type to base64 encoded images
-*/
+ */
 export const docxSerializer = new DocxSerializerAsync(
   {
     ...defaultAsyncNodes,
     async image(state, node) {
       const { src } = node.attrs;
-      await state.image(src, 70, "center", undefined, "png");
+      await state.image(src, 70, 'center', undefined, 'png');
       state.closeBlock(node);
-    }
+    },
   },
-  defaultMarks
+  defaultMarks,
 );
 
 describe('DOCX Serialization', () => {
@@ -65,10 +72,10 @@ describe('DOCX Serialization', () => {
         async getImageBuffer(src: string) {
           const arrayBuffer = await fetch(src).then((res) => res.arrayBuffer());
           return new Uint8Array(arrayBuffer);
-        }
+        },
       },
     );
-    const buffer = await writeDocx(w)
+    const buffer = await writeDocx(w);
     fs.writeFileSync(`hello-async.docx`, buffer);
     expect(1).toBe(1);
   });
@@ -101,4 +108,3 @@ describe('DOCX Serialization', () => {
     expect(2).toBe(2);
   });
 });
-
