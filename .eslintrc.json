@@ -18,9 +18,9 @@
   },
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": 2020,
+    "ecmaVersion": 2018,
     "sourceType": "module",
-    "project": ["./tsconfig.json"]
+    "project": ["./src/tsconfig.json"]
   },
   "plugins": ["@typescript-eslint", "no-skip-tests", "no-only-tests"],
   "rules": {
