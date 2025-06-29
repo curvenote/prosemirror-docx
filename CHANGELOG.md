@@ -1,5 +1,11 @@
 # prosemirror-docx
 
+## 0.6.1
+
+### Patch Changes
+
+- 2ad6c43: Use camel caps for method `serialize_async` -> `serializeAsync`
+
 ## 0.6.0
 
 ### Minor Changes
