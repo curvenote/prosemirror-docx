@@ -913,7 +913,7 @@ export class DocxSerializerAsync {
     this.marks = marks;
   }
 
-  async serialize_async(
+  async serializeAsync(
     content: Node,
     options: OptionsAsync,
     getDocumentOptions?: (state: SerializationState) => IPropertiesOptions,

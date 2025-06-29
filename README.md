@@ -100,11 +100,11 @@ export const docxSerializer = new DocxSerializerAsync(
     ...defaultAsyncNodes,
     async image(state, node) {
       const { src } = node.attrs;
-      await state.image(src, 70, "center", undefined, "png");
+      await state.image(src, 70, 'center', undefined, 'png');
       state.closeBlock(node);
-    }
+    },
   },
-  defaultMarks
+  defaultMarks,
 );
 
 // If there are images, we will need to preload the buffers
@@ -116,7 +116,7 @@ const opts = {
 };
 
 // Create a doc in memory, and then write it to disk
-const wordDocument = docxSerializer.serialize_async(state.doc, opts);
+const wordDocument = docxSerializer.serializeAsync(state.doc, opts);
 
 await writeDocx(wordDocument).then((buffer) => {
   writeFileSync('HelloWorld.docx', buffer);
