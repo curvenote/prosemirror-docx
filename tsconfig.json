@@ -1,23 +1,22 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "ES2020",
     "esModuleInterop": true,
-    "target": "es6",
+    "target": "ES2020",
     "noImplicitAny": true,
     "strict": true,
-    "moduleResolution": "node",
-    "lib": ["es2019", "DOM"],
+    "moduleResolution": "bundler",
+    "lib": ["ES2020", "DOM"],
     "sourceMap": true,
-    "outDir": "dist/cjs",
-    "baseUrl": "src",
-    "paths": {
-      "*": ["node_modules/*", "types/*"]
-    },
-    "typeRoots": ["./node_modules/@types", "./types"],
     "resolveJsonModule": true,
     "declaration": false,
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "test/**/*", "demo/**/*"],
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ],
   "exclude": []
 }
